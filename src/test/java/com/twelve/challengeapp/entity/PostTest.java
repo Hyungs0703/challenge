@@ -2,10 +2,10 @@ package com.twelve.challengeapp.entity;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
-
 import static org.junit.jupiter.api.Assertions.*;
 
 public class PostTest {
+    // Test-related constants
     private static final Long POST_ID = 1L;
     private static final String TITLE = "test title";
     private static final String CONTENT = "test content";
@@ -21,19 +21,19 @@ public class PostTest {
     @BeforeEach
     void setUp() {
         user = User.builder()
-                .id(POST_ID)
-                .username(USERNAME)
-                .password(PASSWORD)
-                .nickname(NICKNAME)
-                .introduce(INTRO)
-                .email(EMAIL)
-                .role(UserRole.USER)
-                .build();
+            .id(POST_ID)
+            .username(USERNAME)
+            .password(PASSWORD)
+            .nickname(NICKNAME)
+            .introduce(INTRO)
+            .email(EMAIL)
+            .role(UserRole.USER)
+            .build();
 
         post = Post.builder()
-                .title(TITLE)
-                .content(CONTENT)
-                .build();
+            .title(TITLE)
+            .content(CONTENT)
+            .build();
 
         post.setUser(user);
     }
@@ -42,7 +42,7 @@ public class PostTest {
     void testPostBuilder() {
         assertEquals(TITLE, post.getTitle());
         assertEquals(CONTENT, post.getContent());
-        assertNull(post.getId()); // ID는 생성 전에는 null 이어야한다
+        assertNull(post.getId()); // ID는 생성 전에는 null 이어야합니다
     }
 
     @Test
@@ -79,22 +79,17 @@ public class PostTest {
 
     @Test
     void testEquals() {
-        // 동일한 속성을 가진 두 개의 서로 다른 Post 객체 생성
         Post samePost1 = Post.builder().id(POST_ID).title(TITLE).content(CONTENT).build();
         samePost1.setUser(user);
 
         Post samePost2 = Post.builder().id(POST_ID).title(TITLE).content(CONTENT).build();
         samePost2.setUser(user);
 
-        // 다른 속성을 가진 Post 객체 생성
         User differentUser = User.builder().id(2L).username("otheruser").password("otherpassword").build();
         Post differentPost = Post.builder().id(2L).title("Different Title").content("Different Content").build();
         differentPost.setUser(differentUser);
 
-        // 동일한 속성을 가진 객체 비교
         assertEquals(samePost1, samePost2);
-
-        // 다른 속성을 가진 객체 비교
         assertNotEquals(samePost1, differentPost);
     }
 
