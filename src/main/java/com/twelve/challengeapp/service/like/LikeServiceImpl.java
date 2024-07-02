@@ -5,7 +5,6 @@ import com.twelve.challengeapp.entity.PostLike;
 import com.twelve.challengeapp.entity.User;
 import com.twelve.challengeapp.exception.PostNotFoundException;
 import com.twelve.challengeapp.jwt.UserDetailsImpl;
-import com.twelve.challengeapp.repository.CommentRepository;
 import com.twelve.challengeapp.repository.PostLikeRepository;
 import com.twelve.challengeapp.repository.PostRepository;
 import jakarta.transaction.Transactional;
@@ -18,7 +17,6 @@ import org.springframework.stereotype.Service;
 public class LikeServiceImpl implements LikeService {
 
     private final PostRepository postRepository;
-    private final CommentRepository commentRepository;
     private final PostLikeRepository postLikeRepository;
 
     @Override
@@ -50,6 +48,7 @@ public class LikeServiceImpl implements LikeService {
         }
 
         List<PostLike> postLikeList = postLikeRepository.findAllByPostId(postId);
+
 
         return postLikeList.stream()
                             .map(PostLike::getUser)
