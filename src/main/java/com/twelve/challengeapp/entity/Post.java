@@ -41,7 +41,7 @@ public class Post extends Timestamped {
     private List<Comment> comments = new ArrayList<>();
 
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<PostLike> posts = new LinkedHashSet<>();
+    private Set<PostLike> postLikes = new LinkedHashSet<>();
 
     @Builder
     public Post(Long id, String title, String content) {
@@ -71,12 +71,6 @@ public class Post extends Timestamped {
         this.comments.remove(comment);
         comment.setPost(null);
     }
-
-    public void addLike(User user) {
-        var like = PostLike.builder().user(user).post(this).build();
-        this.posts.add(like);
-    }
-
 
     @Override
     public boolean equals(Object obj) {

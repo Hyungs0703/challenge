@@ -21,4 +21,5 @@ public class UserResponseDto {
 		this.introduce = user.getIntroduce();
 		this.email = user.getEmail();
 	}
+
 }

@@ -23,5 +23,4 @@ public class CommentLike extends Like{
     @ManyToOne
     @JoinColumn(name = "comment_id")
     Comment comment;
-
 }
