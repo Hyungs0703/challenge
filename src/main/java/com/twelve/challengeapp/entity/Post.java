@@ -1,9 +1,5 @@
 package com.twelve.challengeapp.entity;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Objects;
-
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -14,6 +10,11 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import java.util.ArrayList;
+import java.util.LinkedHashSet;
+import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -35,8 +36,12 @@ public class Post extends Timestamped {
     @JoinColumn(name = "user_id")
     private User user;
 
+
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<Comment> comments = new ArrayList<>();
+
+    @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<PostLike> postLikes = new LinkedHashSet<>();
 
     @Builder
     public Post(Long id, String title, String content) {
@@ -82,5 +87,6 @@ public class Post extends Timestamped {
     public int hashCode() {
         return Objects.hash(id, title, content, user);
     }
+
 
 }
