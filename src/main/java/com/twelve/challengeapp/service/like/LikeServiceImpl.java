@@ -12,7 +12,13 @@ import com.twelve.challengeapp.repository.CommentRepository;
 import com.twelve.challengeapp.repository.PostLikeRepository;
 import com.twelve.challengeapp.repository.PostRepository;
 import jakarta.transaction.Transactional;
+import java.util.Collections;
+import java.util.List;
 import lombok.RequiredArgsConstructor;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.PageRequest;
+import org.springframework.data.domain.Pageable;
+import org.springframework.data.domain.Sort;
 import org.springframework.stereotype.Service;
 
 @Service
@@ -88,6 +94,18 @@ public class LikeServiceImpl implements LikeService {
         comment.removeLike(userDetails.getUser());
     }
 
+    @Override
+    public List<Post> getPosts(UserDetailsImpl userDetails, int page) {
+        Pageable pageable = PageRequest.of(page, 5, Sort.by("createdAt").descending());
+        Page<Post> postPage = postRepository.findByPostLikesUserOrderByCreatedAtDesc(
+            userDetails.getUser(), pageable);
+
+        if (postPage.isEmpty()) {
+            return Collections.emptyList(); // 데이터가 없으면 빈 리스트 반환
+        } else {
+            return postPage.getContent(); // 페이지네이션된 데이터 반환
+        }
+    }
 
     private Post findPostById(Long postId) {
         return postRepository.findById(postId).orElseThrow(() ->
@@ -104,5 +122,6 @@ public class LikeServiceImpl implements LikeService {
         return  commentRepository.findById(commentId).orElseThrow(() ->
             new CommentNotFoundException("Comment not found with given ID: " + commentId));
     }
+
 
 }

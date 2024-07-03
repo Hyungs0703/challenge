@@ -1,7 +1,9 @@
 package com.twelve.challengeapp.service.like;
 
+import com.twelve.challengeapp.entity.Post;
 import com.twelve.challengeapp.jwt.UserDetailsImpl;
 import jakarta.transaction.Transactional;
+import java.util.List;
 
 public interface LikeService {
 
@@ -16,5 +18,7 @@ public interface LikeService {
 
     @Transactional
     void deleteLikeFromComment(Long postId, Long commentId, UserDetailsImpl userDetails);
+
+    List<Post> getPosts(UserDetailsImpl userDetails, int page);
 }
 
