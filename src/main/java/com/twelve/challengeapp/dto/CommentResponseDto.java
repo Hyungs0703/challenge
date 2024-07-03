@@ -16,6 +16,7 @@ public class CommentResponseDto {
     private Long id;
     private String content;
     private String username;
+    private Long count;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -23,6 +24,7 @@ public class CommentResponseDto {
         this.id = comment.getId();
         this.content = comment.getContent();
         this.username = comment.getUser().getUsername();
+        this.count = comment.getCount();
         this.createdAt = comment.getCreatedAt();
         this.updatedAt = comment.getUpdatedAt();
     }

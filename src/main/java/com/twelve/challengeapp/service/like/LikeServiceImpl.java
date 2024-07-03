@@ -1,14 +1,17 @@
 package com.twelve.challengeapp.service.like;
 
+import com.twelve.challengeapp.entity.Comment;
+import com.twelve.challengeapp.entity.CommentLike;
 import com.twelve.challengeapp.entity.Post;
 import com.twelve.challengeapp.entity.PostLike;
-import com.twelve.challengeapp.entity.User;
+import com.twelve.challengeapp.exception.CommentNotFoundException;
 import com.twelve.challengeapp.exception.PostNotFoundException;
 import com.twelve.challengeapp.jwt.UserDetailsImpl;
+import com.twelve.challengeapp.repository.CommentLikeRepository;
+import com.twelve.challengeapp.repository.CommentRepository;
 import com.twelve.challengeapp.repository.PostLikeRepository;
 import com.twelve.challengeapp.repository.PostRepository;
 import jakarta.transaction.Transactional;
-import java.util.List;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -18,19 +21,16 @@ public class LikeServiceImpl implements LikeService {
 
     private final PostRepository postRepository;
     private final PostLikeRepository postLikeRepository;
+    private final CommentRepository commentRepository;
+    private final CommentLikeRepository commentLikeRepository;
+
 
     @Override
     @Transactional
-    public void postAddLikeCount(Long postId, UserDetailsImpl userDetails) {
-        Post post = postRepository.findById(postId).orElseThrow(() ->
-            new PostNotFoundException("Post not found with given ID: " + postId));
+    public void addLikeToPost(Long postId, UserDetailsImpl userDetails) {
+        Post post = findPostById(postId);
 
-        boolean userLikePost = post.getPostLikes()
-                                    .stream()
-                                    .anyMatch(postLike ->
-                                        postLike.getUser().getId().equals(userDetails.getUserId()));
-
-        if (userLikePost) {
+        if (postLikeRepository.existsByUserAndPost(userDetails.getUser(), post)) {
             throw new IllegalArgumentException("You have already liked this post");
         }
 
@@ -38,29 +38,14 @@ public class LikeServiceImpl implements LikeService {
             throw new IllegalArgumentException("You cannot like your own post");
         }
 
-        post.addCount();
-        postLikeRepository.save(new PostLike(userDetails.getUser(), post));
+        post.addLike(userDetails.getUser());
     }
 
-    @Override
-    public List<User> postLikeUserList(Long postId) {
-        if (!postRepository.existsById(postId)) {
-            throw new PostNotFoundException("Post not found with given ID: " + postId);
-        }
-
-        List<PostLike> postLikeList = postLikeRepository.findAllByPostId(postId);
-
-
-        return postLikeList.stream()
-                            .map(PostLike::getUser)
-                            .toList();
-    }
 
     @Override
     @Transactional
-    public void deletePostLike(Long postId, UserDetailsImpl userDetails) {
-        Post post = postRepository.findById(postId).orElseThrow(() ->
-            new PostNotFoundException("Post not found with given ID: " + postId));
+    public void deleteLikeFromPost(Long postId, UserDetailsImpl userDetails) {
+        Post post = findPostById(postId);
 
         PostLike postLike = postLikeRepository.findByPostAndUser(post, userDetails.getUser());
 
@@ -68,7 +53,56 @@ public class LikeServiceImpl implements LikeService {
             throw new IllegalArgumentException("Like not found for the given post and user");
         }
 
-        post.removeCount();
-        postLikeRepository.delete(postLike);
+        post.removeLike(userDetails.getUser());
     }
+
+    @Override
+    @Transactional
+    public void addLikeToComment(Long postId, Long commentId, UserDetailsImpl userDetails) {
+        postExistById(postId);
+        Comment comment = commentFindById(commentId);
+
+        if (commentLikeRepository.existsByUserAndComment(userDetails.getUser(), comment)) {
+            throw new IllegalArgumentException("You have already liked this post");
+        }
+
+        if (comment.getUser().getId().equals(userDetails.getUserId())) {
+            throw new IllegalArgumentException("You cannot like your own comment");
+        }
+
+        comment.addLike(userDetails.getUser());
+    }
+
+    @Override
+    @Transactional
+    public void deleteLikeFromComment(Long postId, Long commentId, UserDetailsImpl userDetails) {
+        postExistById(postId);
+        Comment comment = commentFindById(commentId);
+
+        CommentLike commentLike = commentLikeRepository.findByCommentAndUser(comment, userDetails.getUser());
+
+        if (commentLike == null) {
+            throw new IllegalArgumentException("Like not found for the given comment and user");
+        }
+
+        comment.removeLike(userDetails.getUser());
+    }
+
+
+    private Post findPostById(Long postId) {
+        return postRepository.findById(postId).orElseThrow(() ->
+            new PostNotFoundException("Post not found with given ID: " + postId));
+    }
+
+    private void postExistById(Long postId){
+        if (!postRepository.existsById(postId)) {
+            throw new PostNotFoundException("Post not found with given ID: " + postId);
+        }
+    }
+
+    private Comment commentFindById(Long commentId) {
+        return  commentRepository.findById(commentId).orElseThrow(() ->
+            new CommentNotFoundException("Comment not found with given ID: " + commentId));
+    }
+
 }

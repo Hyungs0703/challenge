@@ -1,15 +1,20 @@
 package com.twelve.challengeapp.service.like;
 
-import com.twelve.challengeapp.entity.User;
 import com.twelve.challengeapp.jwt.UserDetailsImpl;
-import java.util.List;
+import jakarta.transaction.Transactional;
 
 public interface LikeService {
 
-    void postAddLikeCount(Long postId, UserDetailsImpl userDetails);
+    @Transactional
+    void addLikeToPost(Long postId, UserDetailsImpl userDetails);
 
-    List<User> postLikeUserList(Long postId);
+    @Transactional
+    void deleteLikeFromPost(Long postId, UserDetailsImpl userDetails);
 
-    void deletePostLike(Long postId, UserDetailsImpl userDetails);
+    @Transactional
+    void addLikeToComment(Long postId, Long commentId, UserDetailsImpl userDetails);
+
+    @Transactional
+    void deleteLikeFromComment(Long postId, Long commentId, UserDetailsImpl userDetails);
 }
 

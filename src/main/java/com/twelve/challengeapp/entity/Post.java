@@ -31,7 +31,7 @@ public class Post extends Timestamped {
 
     private String title;
     private String content;
-    private Long count = 0L;
+    private Long count;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
@@ -72,15 +72,19 @@ public class Post extends Timestamped {
         comment.setPost(null);
     }
 
-    public void addCount() {
-        if(this.count == 0L) {
+    public void addLike(User user) {
+        PostLike postLike = PostLike.builder().user(user).post(this).build();
+        postLikes.add(postLike);
+        if (this.count == null) {
             this.count = 0L;
         }
         this.count++;
     }
 
-    public void removeCount() {
-        if(this.count == 0L) {
+    public void removeLike(User user) {
+        PostLike postLike = PostLike.builder().user(user).post(this).build();
+        postLikes.remove(postLike);
+        if(this.count == null) {
             this.count = 0L;
         }
         this.count--;

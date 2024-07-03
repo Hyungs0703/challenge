@@ -32,6 +32,8 @@ public class Comment extends Timestamped{
     @Column(nullable = false)
     private String content;
 
+    private Long count;
+
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id", nullable = false)
     private User user;
@@ -40,8 +42,9 @@ public class Comment extends Timestamped{
     @JoinColumn(name = "post_id", nullable = false)
     private Post post;
 
+
     @OneToMany(mappedBy = "comment", cascade = CascadeType.ALL, orphanRemoval = true)
-    Set<CommentLike> likes = new LinkedHashSet<>();
+    Set<CommentLike> commentLikes = new LinkedHashSet<>();
 
     public void update(String content) {
         this.content = content;
@@ -56,7 +59,21 @@ public class Comment extends Timestamped{
     }
 
     public void addLike(User user) {
-        var like = CommentLike.builder().user(user).comment(this).build();
-        this.likes.add(like);
+        CommentLike commentLike = CommentLike.builder().user(user).comment(this).build();
+        this.commentLikes.add(commentLike);
+        if (this.count == null) {
+            this.count = 0L;
+        }
+        this.count++;
+    }
+
+    public void removeLike(User user) {
+        CommentLike commentLike = CommentLike.builder().user(user).comment(this).build();
+        this.commentLikes.remove(commentLike);
+
+        if(this.count == null) {
+            this.count = 0L;
+        }
+        this.count--;
     }
 }
