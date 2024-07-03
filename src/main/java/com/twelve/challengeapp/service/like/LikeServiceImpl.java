@@ -38,6 +38,7 @@ public class LikeServiceImpl implements LikeService {
             throw new IllegalArgumentException("You cannot like your own post");
         }
 
+        post.addCount();
         postLikeRepository.save(new PostLike(userDetails.getUser(), post));
     }
 
@@ -67,6 +68,7 @@ public class LikeServiceImpl implements LikeService {
             throw new IllegalArgumentException("Like not found for the given post and user");
         }
 
+        post.removeCount();
         postLikeRepository.delete(postLike);
     }
 }

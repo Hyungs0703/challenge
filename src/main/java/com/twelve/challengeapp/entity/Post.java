@@ -31,6 +31,7 @@ public class Post extends Timestamped {
 
     private String title;
     private String content;
+    private Long count = 0L;
 
     @ManyToOne(fetch = FetchType.LAZY)
     @JoinColumn(name = "user_id")
@@ -71,6 +72,20 @@ public class Post extends Timestamped {
         comment.setPost(null);
     }
 
+    public void addCount() {
+        if(this.count == 0L) {
+            this.count = 0L;
+        }
+        this.count++;
+    }
+
+    public void removeCount() {
+        if(this.count == 0L) {
+            this.count = 0L;
+        }
+        this.count--;
+    }
+
     @Override
     public boolean equals(Object obj) {
         if (this == obj) return true;
@@ -86,6 +101,7 @@ public class Post extends Timestamped {
     public int hashCode() {
         return Objects.hash(id, title, content, user);
     }
+
 
 
 }
