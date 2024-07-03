@@ -12,11 +12,12 @@ class CommentResponseDtoTest {
         Long id = 1L;
         String content = "Test comment";
         String username = "testuser";
+        Long count = 0L;
         LocalDateTime createdAt = LocalDateTime.now();
         LocalDateTime updatedAt = LocalDateTime.now();
 
         // when
-        CommentResponseDto dto = new CommentResponseDto(id, content, username, createdAt, updatedAt);
+        CommentResponseDto dto = new CommentResponseDto(id, content, username, count, createdAt, updatedAt);
 
         // then
         assertEquals(id, dto.getId());
