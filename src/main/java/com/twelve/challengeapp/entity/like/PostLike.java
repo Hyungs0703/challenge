@@ -1,5 +1,7 @@
-package com.twelve.challengeapp.entity;
+package com.twelve.challengeapp.entity.like;
 
+import com.twelve.challengeapp.entity.Post;
+import com.twelve.challengeapp.entity.User;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;

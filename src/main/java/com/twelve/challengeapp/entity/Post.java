@@ -1,5 +1,6 @@
 package com.twelve.challengeapp.entity;
 
+import com.twelve.challengeapp.entity.like.PostLike;
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;

@@ -1,5 +1,6 @@
-package com.twelve.challengeapp.entity;
+package com.twelve.challengeapp.entity.like;
 
+import com.twelve.challengeapp.entity.User;
 import jakarta.persistence.Column;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
