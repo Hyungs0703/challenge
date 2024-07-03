@@ -1,5 +1,6 @@
 package com.twelve.challengeapp.entity;
 
+import com.twelve.challengeapp.entity.like.PostLike;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -46,6 +47,9 @@ public class User {
 	@Column(nullable = false)
 	private String email;
 
+	private Long postLikeCount;
+	private Long commentLikeCount;
+
 	@Enumerated(EnumType.STRING)
 	@Column(nullable = false)
 	private UserRole role;
@@ -58,6 +62,9 @@ public class User {
 
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
 	private final List<Comment> comments = new ArrayList<>();
+
+	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+	private final List<PostLike> postLikeList = new ArrayList<>();
 
 	//회원 정보 수정
 	public void editInfo(String nickname, String introduce) {
@@ -109,5 +116,15 @@ public class User {
 		this.comments.remove(comment);
 		comment.setUser(null);
 	}
+	public void addPostLikeCount(Post post) {
+		PostLike postLike = PostLike.builder().user(this).post(post).build();
+		postLikeList.add(postLike);
+		if(this.postLikeCount == null) {
+			this.postLikeCount = 0L;
+		}
+		this.postLikeCount++;
+	}
+
+
 
 }

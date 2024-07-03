@@ -74,7 +74,9 @@ public class UserPasswordServiceImpl implements UserPasswordService {
 
 		userRepository.save(user);
 
-		return new UserResponseDto(userDetails.getUsername(), userDetails.getNickname(), userDetails.getIntroduce(),
+		return new UserResponseDto(userDetails.getUsername(),
+			userDetails.getNickname(),
+			userDetails.getIntroduce(),
 			userDetails.getEmail());
 	}
 }
