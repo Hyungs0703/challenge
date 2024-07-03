@@ -13,6 +13,7 @@ public class PostResponseDto {
     private String username;
     private String title;
     private String content;
+    private Long count;
     private LocalDateTime createdAt;
     private LocalDateTime updatedAt;
 
@@ -21,6 +22,7 @@ public class PostResponseDto {
         this.username = post.getUser().getUsername();
         this.title = post.getTitle();
         this.content = post.getContent();
+        this.count = post.getCount();
         this.createdAt = post.getCreatedAt();
         this.updatedAt = post.getUpdatedAt();
     }

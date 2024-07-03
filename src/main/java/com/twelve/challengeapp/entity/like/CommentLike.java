@@ -1,5 +1,7 @@
-package com.twelve.challengeapp.entity;
+package com.twelve.challengeapp.entity.like;
 
+import com.twelve.challengeapp.entity.Comment;
+import com.twelve.challengeapp.entity.User;
 import jakarta.persistence.Entity;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
@@ -12,7 +14,7 @@ import lombok.NoArgsConstructor;
 @NoArgsConstructor(access = AccessLevel.PROTECTED)
 
 @Entity
-public class CommentLike extends Like{
+public class CommentLike extends Like {
 
     @Builder
     public CommentLike(User user, Comment comment) {
