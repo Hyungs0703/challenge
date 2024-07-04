@@ -8,6 +8,7 @@ import static org.mockito.BDDMockito.given;
 import com.twelve.challengeapp.entity.Comment;
 import com.twelve.challengeapp.entity.Post;
 import com.twelve.challengeapp.entity.User;
+import com.twelve.challengeapp.entity.like.CommentLike;
 import com.twelve.challengeapp.jwt.UserDetailsImpl;
 import com.twelve.challengeapp.repository.CommentRepository;
 import com.twelve.challengeapp.repository.UserRepository;
@@ -59,6 +60,7 @@ class CommentLikeServiceImplTest {
         comment = Comment.builder()
             .id(1L)
             .content("testcontent")
+            .count(1L)
             .commentLikes(new HashSet<>())
             .user(userDetails.getUser())
             .build();
@@ -87,7 +89,22 @@ class CommentLikeServiceImplTest {
 
         assertThat(comment.getId()).isEqualTo(1L);
         assertThat(comment.getContent()).isEqualTo("testcontent");
-        assertThat(comment.getCount()).isEqualTo(1);
+        assertThat(comment.getCount()).isEqualTo(2);
     }
 
+    @Test
+    @DisplayName("댓글에 좋아요 삭제 성공 테스트")
+    public void deleteLikeFromComment(){
+        User newUser = User.builder().id(2L).build();
+        UserDetailsImpl userDetails1 = new UserDetailsImpl(newUser);
+        CommentLike commentLike = new CommentLike(userDetails1.getUser(), comment);
+        given(commentRepository.findById(1L)).willReturn(Optional.of(comment));
+        given(commentLikeRepository.findByCommentAndUser(comment, userDetails1.getUser())).willReturn(Optional.of(commentLike));
+
+        commentLikeService.deleteLikeFromComment(1L, 1L, userDetails1);
+
+        assertThat(comment.getId()).isEqualTo(1L);
+        assertThat(comment.getContent()).isEqualTo("testcontent");
+        assertThat(comment.getCount()).isEqualTo(0);
+    }
 }
