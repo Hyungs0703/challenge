@@ -1,5 +1,6 @@
 package com.twelve.challengeapp.entity;
 
+import com.twelve.challengeapp.entity.like.CommentLike;
 import com.twelve.challengeapp.entity.like.PostLike;
 import java.util.ArrayList;
 import java.util.List;
@@ -14,6 +15,7 @@ import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import java.util.Objects;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -47,7 +49,10 @@ public class User {
 	@Column(nullable = false)
 	private String email;
 
+	@Column
 	private Long postLikeCount;
+
+	@Column
 	private Long commentLikeCount;
 
 	@Enumerated(EnumType.STRING)
@@ -58,7 +63,7 @@ public class User {
 	private final List<Post> posts = new ArrayList<>();
 
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-	private final List<UserPasswordRecord> passwordRecords = new ArrayList<>();
+	private final List<UserPasswordRecord> passwordRecordList = new ArrayList<>();
 
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
 	private final List<Comment> comments = new ArrayList<>();
@@ -66,25 +71,34 @@ public class User {
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
 	private final List<PostLike> postLikeList = new ArrayList<>();
 
-	//회원 정보 수정
-	public void editInfo(String nickname, String introduce) {
+	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
+	private final List<CommentLike> commentLikeList = new ArrayList<>();
+
+	public void editUserInfo(String nickname, String introduce) {
 		this.nickname = nickname;
 		this.introduce = introduce;
 	}
-	// 비밀 번호 변경
+
 	public void ChangePassword(String password) {
 		this.password = password;
 	}
-	//회원 탈퇴
-	public void updateRole(UserRole role) {
+
+	public void withdrawal(UserRole role) {
 		this.role = role;
 	}
 
 	@Override
 	public boolean equals(Object obj) {
-		User user = (User)obj;
-		return this.id.equals(user.getId());
+		if (this == obj) {
+			return true;
+		}
+		if (obj == null || getClass() != obj.getClass()) {
+			return false;
+		}
+		User user = (User) obj;
+		return Objects.equals(id, user.id);
 	}
+
 
 	// Post 관련
 	public void addPost(Post post) {
@@ -98,12 +112,12 @@ public class User {
 	}
 
 	public void addPasswordRecord(UserPasswordRecord record) {
-		this.passwordRecords.add(record);
+		this.passwordRecordList.add(record);
 		record.setUser(this);
 	}
 
 	public void removePasswordRecord(UserPasswordRecord record) {
-		this.passwordRecords.remove(record);
+		this.passwordRecordList.remove(record);
 		record.setUser(null);
 	}
 
@@ -125,6 +139,12 @@ public class User {
 		this.postLikeCount++;
 	}
 
-
-
+	public void addCommentLikeCount(Comment comment) {
+		CommentLike commentLike = CommentLike.builder().user(this).comment(comment).build();
+		commentLikeList.add(commentLike);
+		if (this.commentLikeCount == null) {
+			this.commentLikeCount = 0L;
+		}
+		this.commentLikeCount++;
+	}
 }

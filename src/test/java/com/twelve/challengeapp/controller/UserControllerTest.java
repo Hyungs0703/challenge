@@ -1,10 +1,13 @@
 package com.twelve.challengeapp.controller;
 
-import static org.mockito.ArgumentMatchers.*;
-import static org.mockito.Mockito.*;
-import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.*;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
+import static org.springframework.security.test.web.servlet.request.SecurityMockMvcRequestPostProcessors.user;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
-import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
@@ -24,11 +27,9 @@ import com.twelve.challengeapp.dto.UserResponseDto;
 import com.twelve.challengeapp.entity.User;
 import com.twelve.challengeapp.entity.UserRole;
 import com.twelve.challengeapp.jwt.UserDetailsImpl;
-import com.twelve.challengeapp.service.UserPasswordService;
 import com.twelve.challengeapp.service.UserService;
 
-@WebMvcTest(
-	controllers = {UserController.class, UserPasswordController.class})
+@WebMvcTest(controllers = UserController.class)
 @Import(TestConfig.class)
 class UserControllerTest {
 
@@ -41,14 +42,15 @@ class UserControllerTest {
 	private static final String NEW_NICKNAME = "NewNick";
 	private static final String NEW_INTRO = "Updated introduction";
 	private static final String NEW_PASSWORD = "NewPass123!";
+	private static final Long TEST_POST_LIKE_COUNT = 5L;
+	private static final Long TEST_COMMENT_LIKE_COUNT = 3L;
 
 	@Autowired
 	private MockMvc mockMvc;
 
 	@MockBean
 	private UserService userService;
-	@MockBean
-	private UserPasswordService userPasswordService;
+
 	@Autowired
 	private ObjectMapper objectMapper;
 
@@ -70,6 +72,8 @@ class UserControllerTest {
 			.introduce(TEST_INTRO)
 			.email(TEST_EMAIL)
 			.role(UserRole.USER)
+			.postLikeCount(TEST_POST_LIKE_COUNT)
+			.commentLikeCount(TEST_COMMENT_LIKE_COUNT)
 			.build();
 
 		userDetails = new UserDetailsImpl(user);
@@ -83,12 +87,15 @@ class UserControllerTest {
 			.build();
 
 		editDto = UserRequestDto.EditInfo.builder()
-			.password(NEW_PASSWORD)
+			.password(TEST_PASSWORD)
 			.nickname(NEW_NICKNAME)
 			.introduce(NEW_INTRO)
 			.build();
 
-		withdrawalDto = UserRequestDto.Withdrawal.builder().username(TEST_USERNAME).password(TEST_PASSWORD).build();
+		withdrawalDto = UserRequestDto.Withdrawal.builder()
+			.username(TEST_USERNAME)
+			.password(TEST_PASSWORD)
+			.build();
 
 		changePasswordDto = UserRequestDto.ChangePassword.builder()
 			.username(TEST_USERNAME)
@@ -96,10 +103,13 @@ class UserControllerTest {
 			.changePassword(NEW_PASSWORD)
 			.build();
 
-		userResponseDto = new UserResponseDto(TEST_USERNAME, TEST_NICKNAME, TEST_INTRO, TEST_EMAIL);
+		userResponseDto = UserResponseDto.builder()
+			.user(user)
+			.build();
 	}
 
 	@Test
+	@DisplayName("회원 가입 성공")
 	void registerUser_Success() throws Exception {
 		// Given
 		doNothing().when(userService).registerUser(any(UserRequestDto.Register.class));
@@ -117,6 +127,7 @@ class UserControllerTest {
 	}
 
 	@Test
+	@DisplayName("회원 정보 조회")
 	void getUser_Success() throws Exception {
 		// Given
 		when(userService.getUser(any(UserDetailsImpl.class))).thenReturn(userResponseDto);
@@ -130,33 +141,44 @@ class UserControllerTest {
 			.andExpect(jsonPath("$.data.username").value(TEST_USERNAME))
 			.andExpect(jsonPath("$.data.nickname").value(TEST_NICKNAME))
 			.andExpect(jsonPath("$.data.introduce").value(TEST_INTRO))
-			.andExpect(jsonPath("$.data.email").value(TEST_EMAIL));
+			.andExpect(jsonPath("$.data.email").value(TEST_EMAIL))
+			.andExpect(jsonPath("$.data.postLikeCount").value(TEST_POST_LIKE_COUNT))
+			.andExpect(jsonPath("$.data.commentLikeCount").value(TEST_COMMENT_LIKE_COUNT));
 
 		verify(userService).getUser(any(UserDetailsImpl.class));
 	}
 
 	@Test
+	@DisplayName("회원 정보 수정 성공")
 	void editUser_Success() throws Exception {
-		// Given
-		UserResponseDto updatedUserResponseDto = new UserResponseDto(TEST_USERNAME, NEW_NICKNAME, NEW_INTRO,
-			TEST_EMAIL);
-		when(userService.editUser(any(UserRequestDto.EditInfo.class), any(UserDetailsImpl.class))).thenReturn(
-			updatedUserResponseDto);
+		// Given: user 객체의 정보 업데이트
+		user.editUserInfo(NEW_NICKNAME, NEW_INTRO);
 
-		// When
+		// UserResponseDto 객체에 갱신된 user 정보를 담음
+		UserResponseDto updatedUserResponseDto = UserResponseDto.builder().user(user).build();
+
+		when(userService.editUser(any(UserRequestDto.EditInfo.class), any(UserDetailsImpl.class))).thenReturn(updatedUserResponseDto);
+
+		// When: 실제 API 요청
 		ResultActions resultActions = mockMvc.perform(put(BASE_URL).with(user(userDetails))
 			.contentType(MediaType.APPLICATION_JSON)
 			.content(objectMapper.writeValueAsString(editDto)));
 
-		// Then
+		// Then: 응답과 JSON 검증
 		resultActions.andExpect(status().isOk())
+			.andExpect(jsonPath("$.data.username").value(TEST_USERNAME))
 			.andExpect(jsonPath("$.data.nickname").value(NEW_NICKNAME))
-			.andExpect(jsonPath("$.data.introduce").value(NEW_INTRO));
+			.andExpect(jsonPath("$.data.introduce").value(NEW_INTRO))
+			.andExpect(jsonPath("$.data.email").value(TEST_EMAIL))
+			.andExpect(jsonPath("$.data.postLikeCount").value(TEST_POST_LIKE_COUNT))
+			.andExpect(jsonPath("$.data.commentLikeCount").value(TEST_COMMENT_LIKE_COUNT));
 
+		// 서비스 메소드 호출 검증
 		verify(userService).editUser(any(UserRequestDto.EditInfo.class), any(UserDetailsImpl.class));
 	}
 
 	@Test
+	@DisplayName("회원 탈퇴 성공")
 	void withdraw_Success() throws Exception {
 		// Given
 		doNothing().when(userService).withdraw(any(UserRequestDto.Withdrawal.class), any(UserDetailsImpl.class));
@@ -175,14 +197,11 @@ class UserControllerTest {
 	}
 
 	@Test
-	@DisplayName("비밀번호 수정")
+	@DisplayName("비밀번호 수정 성공")
 	void Change_Password_Success() throws Exception {
 		// Given
-		UserResponseDto userResponseDto = new UserResponseDto(TEST_USERNAME, TEST_NICKNAME, TEST_INTRO,
-			TEST_EMAIL);
-		when(userPasswordService.userPasswordChange(any(UserRequestDto.ChangePassword.class),
-			any(UserDetailsImpl.class))).thenReturn(
-			userResponseDto);
+		doNothing().when(userService).userPasswordChange(any(UserRequestDto.ChangePassword.class),
+			any(UserDetailsImpl.class));
 
 		// When
 		ResultActions resultActions = mockMvc.perform(put("/api/users/password").with(user(userDetails))
@@ -191,12 +210,10 @@ class UserControllerTest {
 
 		// Then
 		resultActions.andExpect(status().isOk())
-			.andExpect(jsonPath("$.data.username").value(TEST_USERNAME))
-			.andExpect(jsonPath("$.data.nickname").value(TEST_NICKNAME))
-			.andExpect(jsonPath("$.data.introduce").value(TEST_INTRO))
-			.andExpect(jsonPath("$.data.email").value(TEST_EMAIL));
+			.andExpect(jsonPath("$.message").value("The request has been successfully processed."))
+			.andExpect(jsonPath("$.status").value(200));
 
-		verify(userPasswordService).userPasswordChange(any(UserRequestDto.ChangePassword.class),
+		verify(userService).userPasswordChange(any(UserRequestDto.ChangePassword.class),
 			any(UserDetailsImpl.class));
 	}
 }

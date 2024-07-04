@@ -75,7 +75,7 @@ public class UserServiceTest {
 		when(passwordEncoder.encode(any())).thenReturn(ENCODED_PASSWORD);
 
 		// When
-		assertDoesNotThrow(() -> userService.registerUser(registerDto));
+		userService.registerUser(registerDto);
 
 		// Then
 		verify(userRepository).save(argThat(

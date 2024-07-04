@@ -41,10 +41,10 @@ class UserTest {
 	}
 
 	@Test
-	void testEditInfo() {
+	void testEditUserInfo() {
 		String newNickname = "New Nickname";
 		String newIntro = "New Introduction";
-		user.editInfo(newNickname, newIntro);
+		user.editUserInfo(newNickname, newIntro);
 
 		assertEquals(newNickname, user.getNickname());
 		assertEquals(newIntro, user.getIntroduce());
@@ -52,7 +52,7 @@ class UserTest {
 
 	@Test
 	void testWithdraw() {
-		user.updateRole(UserRole.WITHDRAWAL);
+		user.withdrawal(UserRole.WITHDRAWAL);
 		assertEquals(UserRole.WITHDRAWAL, user.getRole());
 	}
 

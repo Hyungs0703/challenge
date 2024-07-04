@@ -1,8 +1,11 @@
 package com.twelve.challengeapp.service.like;
 
 import com.twelve.challengeapp.entity.Comment;
+import com.twelve.challengeapp.entity.User;
 import com.twelve.challengeapp.exception.CommentNotFoundException;
+import com.twelve.challengeapp.exception.UserNotFoundException;
 import com.twelve.challengeapp.jwt.UserDetailsImpl;
+import com.twelve.challengeapp.repository.UserRepository;
 import com.twelve.challengeapp.repository.like.CommentLikeRepository;
 import com.twelve.challengeapp.repository.CommentRepository;
 import jakarta.transaction.Transactional;
@@ -20,6 +23,7 @@ public class CommentLikeServiceImpl implements CommentLikeService {
 
     private final CommentRepository commentRepository;
     private final CommentLikeRepository commentLikeRepository;
+    private final UserRepository userRepository;
 
 
     @Override
@@ -27,6 +31,10 @@ public class CommentLikeServiceImpl implements CommentLikeService {
     public void addLikeToComment(Long postId, Long commentId, UserDetailsImpl userDetails) {
         Comment comment = findCommentById(commentId);
         validateCommentLike(userDetails, comment);
+        User user = userRepository.findById(userDetails.getUserId()).orElseThrow(() ->
+            new UserNotFoundException("Nof Found User"));
+
+        user.addCommentLikeCount(comment);
         comment.addLike(userDetails.getUser());
     }
 
