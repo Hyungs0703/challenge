@@ -139,7 +139,6 @@ public class User {
 		this.postLikeCount++;
 	}
 
-
 	public void addCommentLikeCount(Comment comment) {
 		CommentLike commentLike = CommentLike.builder().user(this).comment(comment).build();
 		commentLikeList.add(commentLike);

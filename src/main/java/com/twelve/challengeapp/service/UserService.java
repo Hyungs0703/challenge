@@ -12,6 +12,10 @@ public interface UserService {
 	UserResponseDto getUser(UserDetailsImpl userDetails);
 	//회원 정보 수정
 	UserResponseDto editUser(UserRequestDto.EditInfo requestDto, UserDetailsImpl userDetails);
-	//회원 탈퇴
+
+    //비밀번호 변경
+    void userPasswordChange(UserRequestDto.ChangePassword requestDto, UserDetailsImpl userDetails);
+
+    //회원 탈퇴
 	void withdraw(UserRequestDto.Withdrawal requestDto, UserDetailsImpl userDetails);
 }

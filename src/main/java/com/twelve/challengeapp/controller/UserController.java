@@ -41,6 +41,13 @@ public class UserController {
 		return SuccessResponseFactory.ok(editUserInfo);
 	}
 
+	@PutMapping("/password")
+	public ResponseEntity<?> userPasswordChange(@RequestBody UserRequestDto.ChangePassword requestDto,
+		@AuthenticationPrincipal UserDetailsImpl userDetails) {
+		userService.userPasswordChange(requestDto, userDetails);
+		return SuccessResponseFactory.ok();
+	}
+
 	@DeleteMapping
 	public ResponseEntity<?> withdraw(@RequestBody @Valid UserRequestDto.Withdrawal requestDto,
 										@AuthenticationPrincipal UserDetailsImpl userDetails) {
