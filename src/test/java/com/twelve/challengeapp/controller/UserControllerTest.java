@@ -29,7 +29,7 @@ import com.twelve.challengeapp.entity.UserRole;
 import com.twelve.challengeapp.jwt.UserDetailsImpl;
 import com.twelve.challengeapp.service.UserService;
 
-@WebMvcTest(controllers = {UserController.class})
+@WebMvcTest(controllers = UserController.class)
 @Import(TestConfig.class)
 class UserControllerTest {
 
