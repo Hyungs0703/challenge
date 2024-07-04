@@ -3,7 +3,7 @@ package com.twelve.challengeapp.service;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.junit.jupiter.api.Assertions.assertThrows;
 import static org.junit.jupiter.api.Assertions.assertTrue;
-import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyLong;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.times;
@@ -27,12 +27,13 @@ import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.DisplayName;
 import org.junit.jupiter.api.Test;
+import org.junit.jupiter.api.extension.ExtendWith;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.MockitoAnnotations;
+import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
-import org.springframework.transaction.annotation.Transactional;
 
+@ExtendWith(MockitoExtension.class)
 public class UserServiceImplTest {
 
     @Mock
@@ -54,7 +55,6 @@ public class UserServiceImplTest {
     private UserRequestDto.Withdrawal withdrawalDto;
     private UserRequestDto.ChangePassword changePasswordDto;
 
-    private final Long USER_ID = 1L;
     private final String USERNAME = "testUser";
     private final String USER_PASSWORD = "encodedPassword";
     private final String USER_NICKNAME = "testNickname";
@@ -67,9 +67,9 @@ public class UserServiceImplTest {
 
     @BeforeEach
     public void setUp() {
-        MockitoAnnotations.initMocks(this);
+
         user = User.builder()
-            .id(USER_ID)
+            .id(1L)
             .username(USERNAME)
             .password(USER_PASSWORD)
             .nickname(USER_NICKNAME)
@@ -163,7 +163,6 @@ public class UserServiceImplTest {
 
     @Test
     @DisplayName("성공적인 계정 탈퇴")
-    @Transactional
     public void withdraw_Success() {
         when(passwordEncoder.matches(anyString(), anyString())).thenReturn(true);
 
@@ -203,7 +202,6 @@ public class UserServiceImplTest {
 
     @Test
     @DisplayName("잘못된 사용자명으로 인한 비밀번호 변경 실패")
-    @Transactional
     public void userPasswordChange_UserNotFound() {
         when(userRepository.findByUsername(anyString())).thenReturn(Optional.empty());
 
@@ -218,7 +216,6 @@ public class UserServiceImplTest {
 
     @Test
     @DisplayName("최근 사용된 비밀번호와 일치로 인한 비밀번호 변경 실패")
-    @Transactional
     public void userPasswordChange_RecentPasswordMatch() {
         when(userRepository.findByUsername(anyString())).thenReturn(Optional.of(user));
         when(passwordEncoder.matches(changePasswordDto.getPassword(), user.getPassword())).thenReturn(true);
