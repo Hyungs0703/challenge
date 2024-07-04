@@ -33,7 +33,7 @@ public class UserPasswordServiceImpl implements UserPasswordService {
 	//비밀번호 변경
 	@Override
 	@Transactional
-	public UserResponseDto userPasswordChange(UserRequestDto.ChangePassword requestDto, UserDetailsImpl userDetails) {
+	public void userPasswordChange(UserRequestDto.ChangePassword requestDto, UserDetailsImpl userDetails) {
 		// 사용자 아이디 확인
 		User user = userRepository.findByUsername(requestDto.getUsername())
 			.orElseThrow(() -> new UserNotFoundException("The user name does not exist"));
@@ -73,10 +73,5 @@ public class UserPasswordServiceImpl implements UserPasswordService {
 		}
 
 		userRepository.save(user);
-
-		return new UserResponseDto(userDetails.getUsername(),
-			userDetails.getNickname(),
-			userDetails.getIntroduce(),
-			userDetails.getEmail());
 	}
 }

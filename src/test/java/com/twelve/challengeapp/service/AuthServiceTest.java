@@ -87,7 +87,7 @@ class AuthServiceTest {
 	@Test
 	void login_UserWithdrawn() {
 		// Given
-		user.updateRole(UserRole.WITHDRAWAL);
+		user.withdrawal(UserRole.WITHDRAWAL);
 
 		when(userRepository.findByUsername(USERNAME)).thenReturn(Optional.of(user));
 

@@ -3,6 +3,7 @@ package com.twelve.challengeapp.service.like;
 import com.twelve.challengeapp.entity.Post;
 import com.twelve.challengeapp.entity.User;
 import com.twelve.challengeapp.exception.PostNotFoundException;
+import com.twelve.challengeapp.exception.UserNotFoundException;
 import com.twelve.challengeapp.jwt.UserDetailsImpl;
 import com.twelve.challengeapp.repository.PostRepository;
 import com.twelve.challengeapp.repository.UserRepository;
@@ -29,7 +30,8 @@ public class PostLikeServiceImpl implements PostLikeService{
     public void addLikeToPost(Long postId, UserDetailsImpl userDetails) {
         Post post = findPostById(postId);
         validatePostLike(userDetails, post);
-        User user = userRepository.findById(userDetails.getUserId()).orElseThrow(NullPointerException::new);
+        User user = userRepository.findById(userDetails.getUserId()).orElseThrow(() ->
+            new UserNotFoundException("Not Found User"));
         user.addPostLikeCount(post);
         post.addLike(userDetails.getUser());
     }

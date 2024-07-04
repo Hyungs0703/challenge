@@ -64,7 +64,7 @@ class UserRequestDtoTest {
 	}
 
 	@Test
-	void testEditInfoDto_ValidInput() {
+	void testEditUserInfoDto_ValidInput() {
 		UserRequestDto.EditInfo editInfoDto = UserRequestDto.EditInfo.builder()
 			.password(VALID_PASSWORD)
 			.nickname(VALID_NICKNAME)
@@ -75,7 +75,7 @@ class UserRequestDtoTest {
 	}
 
 	@Test
-	void testEditInfoDto_InvalidNickname() {
+	void testEditUserInfoDto_InvalidNickname() {
 		UserRequestDto.EditInfo editInfoDto = UserRequestDto.EditInfo.builder()
 			.password(VALID_PASSWORD)
 			.nickname("")

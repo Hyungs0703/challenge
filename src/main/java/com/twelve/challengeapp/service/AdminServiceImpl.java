@@ -53,7 +53,7 @@ public class AdminServiceImpl implements AdminService {
 	public UserResponseDto updateUserRole(Long userId, UserRequestDto.Role role) {
 		User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("User not found."));
 
-		user.updateRole(UserRole.from(role.getRole()));
+		user.withdrawal(UserRole.from(role.getRole()));
 
 		return new UserResponseDto(user);
 	}
@@ -67,7 +67,7 @@ public class AdminServiceImpl implements AdminService {
 			throw new AlreadyAdminException("User is already an admin");
 		}
 
-		user.updateRole(UserRole.ADMIN);
+		user.withdrawal(UserRole.ADMIN);
 
 		return new UserResponseDto(user);
 	}
@@ -78,7 +78,7 @@ public class AdminServiceImpl implements AdminService {
 		User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("User not found."));
 
 		// post, comment 상태는 유지
-		user.updateRole(UserRole.DELETED);
+		user.withdrawal(UserRole.DELETED);
 	}
 
 	@Override

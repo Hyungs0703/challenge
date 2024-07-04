@@ -42,8 +42,8 @@ public class UserController {
 	}
 
 	@DeleteMapping
-	public ResponseEntity<SuccessResponse<Void>> withdraw(@RequestBody @Valid UserRequestDto.Withdrawal requestDto,
-														  @AuthenticationPrincipal UserDetailsImpl userDetails) {
+	public ResponseEntity<?> withdraw(@RequestBody @Valid UserRequestDto.Withdrawal requestDto,
+										@AuthenticationPrincipal UserDetailsImpl userDetails) {
 
 		userService.withdraw(requestDto, userDetails);
 		return SuccessResponseFactory.ok();

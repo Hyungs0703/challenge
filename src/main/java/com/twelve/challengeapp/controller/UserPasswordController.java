@@ -22,7 +22,7 @@ public class UserPasswordController {
 	@PutMapping("/password")
 	public ResponseEntity<?> userPasswordChange(@RequestBody UserRequestDto.ChangePassword requestDto,
 												@AuthenticationPrincipal UserDetailsImpl userDetails) {
-		UserResponseDto userResponseDto = userPasswordService.userPasswordChange(requestDto, userDetails);
-		return SuccessResponseFactory.ok(userResponseDto);
+		userPasswordService.userPasswordChange(requestDto, userDetails);
+		return SuccessResponseFactory.ok();
 	}
 }

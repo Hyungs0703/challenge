@@ -6,5 +6,5 @@ import com.twelve.challengeapp.jwt.UserDetailsImpl;
 
 public interface UserPasswordService {
 	//비밀번호 변경
-	UserResponseDto userPasswordChange(UserRequestDto.ChangePassword requestDto, UserDetailsImpl userDetails);
+	void userPasswordChange(UserRequestDto.ChangePassword requestDto, UserDetailsImpl userDetails);
 }
