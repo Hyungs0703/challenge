@@ -4,8 +4,9 @@ import com.twelve.challengeapp.jwt.UserDetailsImpl;
 import org.springframework.stereotype.Service;
 
 @Service
-public class FollowServiceImpl {
+public class FollowServiceImpl implements FollowService {
 
+    @Override
     public void addFollow(Long userId, UserDetailsImpl userDetails) {
     }
 }
