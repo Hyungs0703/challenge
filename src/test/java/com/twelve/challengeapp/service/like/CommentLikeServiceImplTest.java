@@ -12,7 +12,6 @@ import com.twelve.challengeapp.entity.Comment;
 import com.twelve.challengeapp.entity.User;
 import com.twelve.challengeapp.entity.like.CommentLike;
 import com.twelve.challengeapp.exception.AlreadyException;
-import com.twelve.challengeapp.exception.DuplicateException;
 import com.twelve.challengeapp.exception.NotFoundException;
 import com.twelve.challengeapp.jwt.UserDetailsImpl;
 import com.twelve.challengeapp.repository.CommentRepository;
@@ -105,9 +104,8 @@ class CommentLikeServiceImplTest {
         given(commentRepository.findById(anyLong())).willReturn(Optional.empty());
 
         // When, Then
-        assertThrows(NotFoundException.class, () -> {
-            commentLikeService.addLikeToComment(1L, 1L, userDetails); // 특정 댓글 ID와 사용자 ID 전달
-        });
+        assertThrows(NotFoundException.class, () ->
+            commentLikeService.addLikeToComment(1L, 1L, userDetails));
     }
 
     @Test
@@ -120,9 +118,8 @@ class CommentLikeServiceImplTest {
         when(commentLikeRepository.existsByUserAndComment(userDetails.getUser(), comment)).thenReturn(true);
 
         // Then
-        assertThrows(AlreadyException.class, () -> {
-            commentLikeService.addLikeToComment(1L, 1L, userDetails);
-        });
+        assertThrows(AlreadyException.class, () ->
+            commentLikeService.addLikeToComment(1L, 1L, userDetails));
     }
 
     @Test
@@ -136,9 +133,8 @@ class CommentLikeServiceImplTest {
 
 
         //Then
-        assertThrows(IllegalArgumentException.class, () -> {
-            commentLikeService.addLikeToComment(1L, 1L, userDetails);
-        });
+        assertThrows(IllegalArgumentException.class, () ->
+            commentLikeService.addLikeToComment(1L, 1L, userDetails));
 
     }
 }

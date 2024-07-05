@@ -3,6 +3,7 @@ package com.twelve.challengeapp.service;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+import com.twelve.challengeapp.exception.AlreadyException;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -91,7 +92,7 @@ class AuthServiceTest {
 		when(userRepository.findByUsername(USERNAME)).thenReturn(Optional.of(user));
 
 		// When & Then
-		assertThrows(UserWithdrawalException.class, () -> authService.login(loginDto));
+		assertThrows(AlreadyException.class, () -> authService.login(loginDto));
 	}
 
 	@Test

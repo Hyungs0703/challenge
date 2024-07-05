@@ -18,7 +18,6 @@ import com.twelve.challengeapp.entity.UserRole;
 import com.twelve.challengeapp.exception.DuplicateException;
 import com.twelve.challengeapp.exception.MismatchException;
 import com.twelve.challengeapp.exception.NotFoundException;
-import com.twelve.challengeapp.exception.UserNotFoundException;
 import com.twelve.challengeapp.jwt.UserDetailsImpl;
 import com.twelve.challengeapp.repository.UserPasswordRepository;
 import com.twelve.challengeapp.repository.UserRepository;
@@ -249,8 +248,8 @@ public class UserServiceImplTest {
             .password("password")
             .build();
 
-        UsernameMismatchException thrown = assertThrows(
-            UsernameMismatchException.class,
+        MismatchException thrown = assertThrows(
+            MismatchException.class,
             () -> userServiceImpl.withdraw(wrongWithdrawalDto, userDetails),
             "Expected withdraw() to throw, but it didn't"
         );
