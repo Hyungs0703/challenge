@@ -2,6 +2,7 @@ package com.twelve.challengeapp.entity;
 
 import com.twelve.challengeapp.entity.like.CommentLike;
 import com.twelve.challengeapp.entity.like.PostLike;
+import jakarta.persistence.FetchType;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -114,11 +115,6 @@ public class User {
 	public void addPasswordRecord(UserPasswordRecord record) {
 		this.passwordRecordList.add(record);
 		record.setUser(this);
-	}
-
-	public void removePasswordRecord(UserPasswordRecord record) {
-		this.passwordRecordList.remove(record);
-		record.setUser(null);
 	}
 
 	public void addComment(Comment comment) {
