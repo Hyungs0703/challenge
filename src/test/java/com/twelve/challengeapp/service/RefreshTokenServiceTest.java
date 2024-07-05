@@ -3,6 +3,7 @@ package com.twelve.challengeapp.service;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+import com.twelve.challengeapp.exception.NotFoundException;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -15,7 +16,6 @@ import org.mockito.junit.jupiter.MockitoExtension;
 import com.twelve.challengeapp.entity.RefreshToken;
 import com.twelve.challengeapp.entity.User;
 import com.twelve.challengeapp.entity.UserRole;
-import com.twelve.challengeapp.exception.TokenNotFoundException;
 import com.twelve.challengeapp.repository.RefreshTokenRepository;
 
 @ExtendWith(MockitoExtension.class)
@@ -63,7 +63,7 @@ class RefreshTokenServiceTest {
 		when(refreshTokenRepository.findByToken(token)).thenReturn(Optional.empty());
 
 		// When & Then
-		assertThrows(TokenNotFoundException.class, () -> refreshTokenService.findByToken(token));
+		assertThrows(NotFoundException.class, () -> refreshTokenService.findByToken(token));
 	}
 
 	@Test

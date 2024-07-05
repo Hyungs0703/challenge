@@ -8,9 +8,8 @@ import com.twelve.challengeapp.dto.UserRequestDto;
 import com.twelve.challengeapp.entity.RefreshToken;
 import com.twelve.challengeapp.entity.User;
 import com.twelve.challengeapp.entity.UserRole;
-import com.twelve.challengeapp.exception.AlreadyAdminException;
-import com.twelve.challengeapp.exception.PasswordMismatchException;
-import com.twelve.challengeapp.exception.UserWithdrawalException;
+import com.twelve.challengeapp.exception.AlreadyException;
+import com.twelve.challengeapp.exception.MismatchException;
 import com.twelve.challengeapp.repository.UserRepository;
 
 @Service
@@ -41,12 +40,12 @@ public class AuthServiceImpl implements AuthService {
 
 		// 탈퇴한 계정처리
 		if (UserRole.WITHDRAWAL.equals(user.getRole())) {
-			throw new UserWithdrawalException("Withdrawal user");
+			throw new AlreadyException("Already Withdrawal user");
 		}
 
 		// 삭제된 계정 처리
 		if (UserRole.DELETED.equals(user.getRole())) {
-			throw  new AlreadyAdminException("Deleted user");
+			throw  new AlreadyException("Already Deleted user");
 		}
 
 		if (passwordEncoder.matches(requestDto.getPassword(), user.getPassword())) {
@@ -56,7 +55,7 @@ public class AuthServiceImpl implements AuthService {
 			jwtService.setRefreshTokenAtCookie(refreshToken);
 			return accessToken;
 		} else {
-			throw new PasswordMismatchException("Invalid password");
+			throw new MismatchException("Invalid password");
 		}
 	}
 

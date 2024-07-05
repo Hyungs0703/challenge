@@ -1,25 +1,20 @@
 package com.twelve.challengeapp.service;
 
-import java.util.List;
-import java.util.stream.Collectors;
-
-import org.springframework.stereotype.Service;
-import org.springframework.transaction.annotation.Transactional;
-
 import com.twelve.challengeapp.dto.CommentResponseDto;
 import com.twelve.challengeapp.entity.Comment;
 import com.twelve.challengeapp.entity.Post;
 import com.twelve.challengeapp.entity.User;
-import com.twelve.challengeapp.exception.CommentNotFoundException;
-import com.twelve.challengeapp.exception.PostNotFoundException;
-import com.twelve.challengeapp.exception.SelfCommentException;
-import com.twelve.challengeapp.exception.UnauthorizedException;
-import com.twelve.challengeapp.exception.UserNotFoundException;
+import com.twelve.challengeapp.exception.DuplicateException;
+import com.twelve.challengeapp.exception.NotFoundException;
+import com.twelve.challengeapp.exception.NotAuthorizedException;
 import com.twelve.challengeapp.repository.CommentRepository;
 import com.twelve.challengeapp.repository.PostRepository;
 import com.twelve.challengeapp.repository.UserRepository;
-
+import java.util.List;
+import java.util.stream.Collectors;
 import lombok.RequiredArgsConstructor;
+import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @RequiredArgsConstructor
 @Service
@@ -33,12 +28,12 @@ public class CommentServiceImpl implements CommentService {
 	@Transactional
 	public CommentResponseDto createComment(Long postId, String content, Long userId) {
 
-		User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("User not found."));
+		User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found."));
 
-		Post post = postRepository.findById(postId).orElseThrow(() -> new PostNotFoundException("Post not found."));
+		Post post = postRepository.findById(postId).orElseThrow(() -> new NotFoundException("Post not found."));
 
 		if (post.getUser().equals(user)) {
-			throw new SelfCommentException("Comments on your own post are not allowed.");
+			throw new DuplicateException("Comments on your own post are not allowed.");
 		}
 
 		Comment comment = Comment.builder().content(content).user(user).build();
@@ -55,9 +50,9 @@ public class CommentServiceImpl implements CommentService {
 	@Transactional
 	public CommentResponseDto updateComment(Long commentId, String content, User user) {
 		Comment comment = commentRepository.findById(commentId)
-			.orElseThrow(() -> new CommentNotFoundException("Comment not found"));
+			.orElseThrow(() -> new NotFoundException("Comment not found"));
 		if (!comment.getUser().equals(user)) {
-			throw new UnauthorizedException("You are not authorized to update this comment");
+			throw new NotAuthorizedException("You are not authorized to update this comment");
 		}
 
 		comment.update(content);
@@ -68,13 +63,13 @@ public class CommentServiceImpl implements CommentService {
 	@Override
 	@Transactional
 	public void deleteComment(Long commentId, Long userId) {
-		User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("User not found."));
+		User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found."));
 
 		Comment comment = commentRepository.findById(commentId)
-			.orElseThrow(() -> new CommentNotFoundException("Comment not found"));
+			.orElseThrow(() -> new NotFoundException("Comment not found"));
 
 		if (!comment.getUser().equals(user)) {
-			throw new UnauthorizedException("You are not authorized to delete this comment");
+			throw new NotAuthorizedException("You are not authorized to delete this comment");
 		}
 
 		Post post = comment.getPost();

@@ -17,6 +17,7 @@ import java.util.LinkedHashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Set;
+import lombok.AllArgsConstructor;
 import lombok.Builder;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
@@ -25,6 +26,8 @@ import lombok.NoArgsConstructor;
 @Entity
 @Getter
 @NoArgsConstructor
+@AllArgsConstructor
+@Builder
 public class Post extends Timestamped {
 
     @Id
@@ -35,7 +38,7 @@ public class Post extends Timestamped {
     private String title;
     @Column(nullable = false)
     private String content;
-
+    @Column
     private Long count;
 
     @ManyToOne(fetch = FetchType.LAZY)
@@ -48,7 +51,7 @@ public class Post extends Timestamped {
     @OneToMany(mappedBy = "post", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<PostLike> postLikes = new LinkedHashSet<>();
 
-    @Builder
+
     public Post(Long id, String title, String content) {
         this.id = id;
         this.title = title;

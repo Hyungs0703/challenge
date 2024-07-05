@@ -2,8 +2,8 @@ package com.twelve.challengeapp.service.like;
 
 import com.twelve.challengeapp.entity.Post;
 import com.twelve.challengeapp.entity.User;
-import com.twelve.challengeapp.exception.PostNotFoundException;
-import com.twelve.challengeapp.exception.UserNotFoundException;
+import com.twelve.challengeapp.exception.AlreadyException;
+import com.twelve.challengeapp.exception.NotFoundException;
 import com.twelve.challengeapp.jwt.UserDetailsImpl;
 import com.twelve.challengeapp.repository.PostRepository;
 import com.twelve.challengeapp.repository.UserRepository;
@@ -31,7 +31,7 @@ public class PostLikeServiceImpl implements PostLikeService{
         Post post = findPostById(postId);
         validatePostLike(userDetails, post);
         User user = userRepository.findById(userDetails.getUserId()).orElseThrow(() ->
-            new UserNotFoundException("Not Found User"));
+            new NotFoundException("Not Found User"));
         user.addPostLikeCount(post);
         post.addLike(userDetails.getUser());
     }
@@ -52,7 +52,7 @@ public class PostLikeServiceImpl implements PostLikeService{
 
     private void validatePostLike(UserDetailsImpl userDetails, Post post) {
         if (postLikeRepository.existsByUserAndPost(userDetails.getUser(), post)) {
-            throw new IllegalArgumentException("You have already liked this post");
+            throw new AlreadyException("You have already liked this post");
         }
 
         if (post.getUser().getId().equals(userDetails.getUserId())) {
@@ -62,7 +62,7 @@ public class PostLikeServiceImpl implements PostLikeService{
 
     private Post findPostById(Long postId) {
         return postRepository.findById(postId).orElseThrow(() ->
-            new PostNotFoundException("Post not found with given ID: " + postId));
+            new NotFoundException("Post not found with given ID: " + postId));
     }
 
     private List<Post> getLikedPostsByUser(UserDetailsImpl userDetails, int page, PostRepository postRepo) {

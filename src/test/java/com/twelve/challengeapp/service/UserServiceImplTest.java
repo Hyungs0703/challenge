@@ -15,10 +15,10 @@ import com.twelve.challengeapp.dto.UserResponseDto;
 import com.twelve.challengeapp.entity.User;
 import com.twelve.challengeapp.entity.UserPasswordRecord;
 import com.twelve.challengeapp.entity.UserRole;
-import com.twelve.challengeapp.exception.DuplicateUsernameException;
-import com.twelve.challengeapp.exception.PasswordMismatchException;
+import com.twelve.challengeapp.exception.DuplicateException;
+import com.twelve.challengeapp.exception.MismatchException;
+import com.twelve.challengeapp.exception.NotFoundException;
 import com.twelve.challengeapp.exception.UserNotFoundException;
-import com.twelve.challengeapp.exception.UsernameMismatchException;
 import com.twelve.challengeapp.jwt.UserDetailsImpl;
 import com.twelve.challengeapp.repository.UserPasswordRepository;
 import com.twelve.challengeapp.repository.UserRepository;
@@ -177,8 +177,8 @@ public class UserServiceImplTest {
     public void validateDuplicateUsername_ThrowsException() {
         when(userRepository.existsByUsername(anyString())).thenReturn(true);
 
-        DuplicateUsernameException thrown = assertThrows(
-            DuplicateUsernameException.class,
+        DuplicateException thrown = assertThrows(
+            DuplicateException.class,
             () -> userServiceImpl.registerUser(registerDto),
             "Expected registerUser() to throw, but it didn't"
         );
@@ -191,8 +191,8 @@ public class UserServiceImplTest {
     public void validatePasswordMatch_ThrowsException() {
         when(passwordEncoder.matches(anyString(), anyString())).thenReturn(false);
 
-        PasswordMismatchException thrown = assertThrows(
-            PasswordMismatchException.class,
+        MismatchException thrown = assertThrows(
+            MismatchException.class,
             () -> userServiceImpl.editUser(editDto, userDetails),
             "Expected editUser() to throw, but it didn't"
         );
@@ -205,8 +205,8 @@ public class UserServiceImplTest {
     public void userPasswordChange_UserNotFound() {
         when(userRepository.findByUsername(anyString())).thenReturn(Optional.empty());
 
-        UserNotFoundException thrown = assertThrows(
-            UserNotFoundException.class,
+        NotFoundException thrown = assertThrows(
+            NotFoundException.class,
             () -> userServiceImpl.userPasswordChange(changePasswordDto, userDetails),
             "Expected userPasswordChange() to throw, but it didn't"
         );
@@ -232,8 +232,8 @@ public class UserServiceImplTest {
         when(passwordEncoder.matches(changePasswordDto.getChangePassword(), "encodedPassword2")).thenReturn(false);
         when(passwordEncoder.matches(changePasswordDto.getChangePassword(), "encodedPassword3")).thenReturn(true);
 
-        PasswordMismatchException thrown = assertThrows(
-            PasswordMismatchException.class,
+        MismatchException thrown = assertThrows(
+            MismatchException.class,
             () -> userServiceImpl.userPasswordChange(changePasswordDto, userDetails),
             "Expected userPasswordChange() to throw, but it didn't"
         );
