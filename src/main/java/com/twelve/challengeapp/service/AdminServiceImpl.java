@@ -1,5 +1,6 @@
 package com.twelve.challengeapp.service;
 
+import com.twelve.challengeapp.exception.NotFoundException;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -16,10 +17,7 @@ import com.twelve.challengeapp.entity.Comment;
 import com.twelve.challengeapp.entity.Post;
 import com.twelve.challengeapp.entity.User;
 import com.twelve.challengeapp.entity.UserRole;
-import com.twelve.challengeapp.exception.AlreadyAdminException;
-import com.twelve.challengeapp.exception.CommentNotFoundException;
-import com.twelve.challengeapp.exception.PostNotFoundException;
-import com.twelve.challengeapp.exception.UserNotFoundException;
+import com.twelve.challengeapp.exception.AlreadyException;
 import com.twelve.challengeapp.repository.CommentRepository;
 import com.twelve.challengeapp.repository.PostRepository;
 import com.twelve.challengeapp.repository.UserRepository;
@@ -51,7 +49,7 @@ public class AdminServiceImpl implements AdminService {
 	@Override
 	@Transactional
 	public UserResponseDto updateUserRole(Long userId, UserRequestDto.Role role) {
-		User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("User not found."));
+		User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found."));
 
 		user.withdrawal(UserRole.from(role.getRole()));
 
@@ -61,10 +59,10 @@ public class AdminServiceImpl implements AdminService {
 	@Override
 	@Transactional
 	public UserResponseDto promoteToAdmin(Long userId) {
-		User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("User not found."));
+		User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found."));
 
 		if (user.getRole().equals(UserRole.ADMIN)) {
-			throw new AlreadyAdminException("User is already an admin");
+			throw new AlreadyException("User is already an admin");
 		}
 
 		user.withdrawal(UserRole.ADMIN);
@@ -75,7 +73,7 @@ public class AdminServiceImpl implements AdminService {
 	@Override
 	@Transactional
 	public void deleteUser(Long userId) {
-		User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("User not found."));
+		User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found."));
 
 		// post, comment 상태는 유지
 		user.withdrawal(UserRole.DELETED);
@@ -89,7 +87,7 @@ public class AdminServiceImpl implements AdminService {
 	@Override
 	@Transactional
 	public PostResponseDto updatePost(Long postId, PostRequestDto postRequestDto) {
-		Post post = postRepository.findById(postId).orElseThrow(() -> new PostNotFoundException("Post not found"));
+		Post post = postRepository.findById(postId).orElseThrow(() -> new NotFoundException("Post not found"));
 		post.update(postRequestDto.getTitle(), postRequestDto.getContent());
 		return new PostResponseDto(post);
 	}
@@ -97,10 +95,10 @@ public class AdminServiceImpl implements AdminService {
 	@Override
 	@Transactional
 	public void deletePost(Long postId) {
-		Post post = postRepository.findById(postId).orElseThrow(() -> new PostNotFoundException("Post not found"));
+		Post post = postRepository.findById(postId).orElseThrow(() -> new NotFoundException("Post not found"));
 
 		Long userId = post.getUser().getId();
-		User user = userRepository.findById(userId).orElseThrow(() -> new UserNotFoundException("User not found"));
+		User user = userRepository.findById(userId).orElseThrow(() -> new NotFoundException("User not found"));
 
 		user.removePost(post);
 		postRepository.delete(post);
@@ -116,7 +114,7 @@ public class AdminServiceImpl implements AdminService {
 	public CommentResponseDto updateComment(Long commentId, CommentRequestDto requestDto) {
 
 		Comment comment = commentRepository.findById(commentId)
-			.orElseThrow(() -> new CommentNotFoundException("Comment not found"));
+			.orElseThrow(() -> new NotFoundException("Comment not found"));
 
 		comment.update(requestDto.getContent());
 		return new CommentResponseDto(comment);
@@ -127,7 +125,7 @@ public class AdminServiceImpl implements AdminService {
 	public void deleteComment(Long commentId) {
 
 		Comment comment = commentRepository.findById(commentId)
-			.orElseThrow(() -> new CommentNotFoundException("Comment not found"));
+			.orElseThrow(() -> new NotFoundException("Comment not found"));
 
 		User user = comment.getUser();
 		Post post = comment.getPost();

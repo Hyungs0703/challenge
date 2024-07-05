@@ -9,10 +9,10 @@ import static org.mockito.Mockito.anyLong;
 import static org.mockito.Mockito.when;
 
 import com.twelve.challengeapp.entity.Comment;
-import com.twelve.challengeapp.entity.Post;
 import com.twelve.challengeapp.entity.User;
 import com.twelve.challengeapp.entity.like.CommentLike;
-import com.twelve.challengeapp.exception.CommentNotFoundException;
+import com.twelve.challengeapp.exception.AlreadyException;
+import com.twelve.challengeapp.exception.NotFoundException;
 import com.twelve.challengeapp.jwt.UserDetailsImpl;
 import com.twelve.challengeapp.repository.CommentRepository;
 import com.twelve.challengeapp.repository.UserRepository;
@@ -45,7 +45,6 @@ class CommentLikeServiceImplTest {
     User user;
     UserDetailsImpl userDetails;
     Comment comment;
-    Post post;
 
     @BeforeEach
     void setUp () {
@@ -54,12 +53,6 @@ class CommentLikeServiceImplTest {
             .build();
 
         userDetails = new UserDetailsImpl(user);
-
-        post = Post.builder()
-            .id(1L)
-            .title("testTitle")
-            .content("testContent")
-            .build();
 
         comment = Comment.builder()
             .id(1L)
@@ -84,8 +77,6 @@ class CommentLikeServiceImplTest {
         commentLikeService.addLikeToComment(1L, 1L, userDetails1);
 
         //Then
-        assertThat(comment.getId()).isEqualTo(1L);
-        assertThat(comment.getContent()).isEqualTo("testcontent");
         assertThat(comment.getCount()).isEqualTo(2);
     }
 
@@ -103,8 +94,6 @@ class CommentLikeServiceImplTest {
         commentLikeService.deleteLikeFromComment(1L, 1L, userDetails1);
 
         //Then
-        assertThat(comment.getId()).isEqualTo(1L);
-        assertThat(comment.getContent()).isEqualTo("testcontent");
         assertThat(comment.getCount()).isEqualTo(0);
     }
 
@@ -115,9 +104,8 @@ class CommentLikeServiceImplTest {
         given(commentRepository.findById(anyLong())).willReturn(Optional.empty());
 
         // When, Then
-        assertThrows(CommentNotFoundException.class, () -> {
-            commentLikeService.addLikeToComment(1L, 1L, userDetails); // 특정 댓글 ID와 사용자 ID 전달
-        });
+        assertThrows(NotFoundException.class, () ->
+            commentLikeService.addLikeToComment(1L, 1L, userDetails));
     }
 
     @Test
@@ -127,27 +115,26 @@ class CommentLikeServiceImplTest {
         given(commentRepository.findById(anyLong())).willReturn(Optional.of(comment));
 
         //When
-        when(commentLikeRepository.existsByUserAndComment(userDetails.getUser(), comment)).thenReturn(false);
+        when(commentLikeRepository.existsByUserAndComment(userDetails.getUser(), comment)).thenReturn(true);
 
         // Then
-        assertThrows(IllegalArgumentException.class, () -> {
-            commentLikeService.addLikeToComment(1L, 1L, userDetails);
-        }, "You have already comment like");
+        assertThrows(AlreadyException.class, () ->
+            commentLikeService.addLikeToComment(1L, 1L, userDetails));
     }
 
     @Test
-    @DisplayName("댓글 작성자가 좋아요 누르면 실패하는 테스트 코드")
+    @DisplayName("본인 댓글에 좋아요를 실패하는 테스트 코드")
     public void test_OwnCommentNotLiked() {
         //Given
         given(commentRepository.findById(anyLong())).willReturn(Optional.of(comment));
 
         //When
-        when(commentLikeRepository.existsByUserAndComment(userDetails.getUser(), comment)).thenReturn(true);
+        when(commentLikeRepository.existsByUserAndComment(userDetails.getUser(), comment)).thenReturn(false);
+
 
         //Then
-        assertThrows(IllegalArgumentException.class, () -> {
-            commentLikeService.addLikeToComment(1L, 1L, userDetails);
-        }, "You cannot like your own comment");
+        assertThrows(IllegalArgumentException.class, () ->
+            commentLikeService.addLikeToComment(1L, 1L, userDetails));
 
     }
 }

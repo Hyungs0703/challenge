@@ -3,6 +3,7 @@ package com.twelve.challengeapp.service;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+import com.twelve.challengeapp.exception.AlreadyException;
 import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
@@ -18,8 +19,7 @@ import com.twelve.challengeapp.dto.UserRequestDto;
 import com.twelve.challengeapp.entity.RefreshToken;
 import com.twelve.challengeapp.entity.User;
 import com.twelve.challengeapp.entity.UserRole;
-import com.twelve.challengeapp.exception.PasswordMismatchException;
-import com.twelve.challengeapp.exception.UserWithdrawalException;
+import com.twelve.challengeapp.exception.MismatchException;
 import com.twelve.challengeapp.repository.UserRepository;
 
 @ExtendWith(MockitoExtension.class)
@@ -92,7 +92,7 @@ class AuthServiceTest {
 		when(userRepository.findByUsername(USERNAME)).thenReturn(Optional.of(user));
 
 		// When & Then
-		assertThrows(UserWithdrawalException.class, () -> authService.login(loginDto));
+		assertThrows(AlreadyException.class, () -> authService.login(loginDto));
 	}
 
 	@Test
@@ -102,7 +102,7 @@ class AuthServiceTest {
 		when(passwordEncoder.matches(PASSWORD, ENCODED_PASSWORD)).thenReturn(false);
 
 		// When & Then
-		assertThrows(PasswordMismatchException.class, () -> authService.login(loginDto));
+		assertThrows(MismatchException.class, () -> authService.login(loginDto));
 	}
 
 	@Test

@@ -1,10 +1,23 @@
 package com.twelve.challengeapp.service;
 
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.ArgumentMatchers.*;
+import static org.junit.jupiter.api.Assertions.assertAll;
+import static org.junit.jupiter.api.Assertions.assertDoesNotThrow;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertThrows;
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.argThat;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+import com.twelve.challengeapp.dto.UserRequestDto;
+import com.twelve.challengeapp.dto.UserResponseDto;
+import com.twelve.challengeapp.entity.User;
+import com.twelve.challengeapp.entity.UserRole;
+import com.twelve.challengeapp.exception.DuplicateException;
+import com.twelve.challengeapp.exception.MismatchException;
+import com.twelve.challengeapp.jwt.UserDetailsImpl;
+import com.twelve.challengeapp.repository.UserRepository;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -12,16 +25,6 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.jupiter.MockitoExtension;
 import org.springframework.security.crypto.password.PasswordEncoder;
-
-import com.twelve.challengeapp.dto.UserRequestDto;
-import com.twelve.challengeapp.dto.UserResponseDto;
-import com.twelve.challengeapp.entity.User;
-import com.twelve.challengeapp.entity.UserRole;
-import com.twelve.challengeapp.exception.DuplicateUsernameException;
-import com.twelve.challengeapp.exception.PasswordMismatchException;
-import com.twelve.challengeapp.exception.UsernameMismatchException;
-import com.twelve.challengeapp.jwt.UserDetailsImpl;
-import com.twelve.challengeapp.repository.UserRepository;
 
 @ExtendWith(MockitoExtension.class)
 public class UserServiceTest {
@@ -90,7 +93,7 @@ public class UserServiceTest {
 		when(userRepository.existsByUsername(any())).thenReturn(true);
 
 		// When & Then
-		assertThrows(DuplicateUsernameException.class, () -> userService.registerUser(registerDto));
+		assertThrows(DuplicateException.class, () -> userService.registerUser(registerDto));
 		verify(userRepository, never()).save(any(User.class));
 	}
 
@@ -142,7 +145,7 @@ public class UserServiceTest {
 		when(passwordEncoder.matches(any(), any())).thenReturn(false);
 
 		// When & Then
-		assertThrows(PasswordMismatchException.class, () -> userService.editUser(editDto, userDetails));
+		assertThrows(MismatchException.class, () -> userService.editUser(editDto, userDetails));
 		verify(userRepository, never()).save(any(User.class));
 	}
 
@@ -157,7 +160,7 @@ public class UserServiceTest {
 		when(passwordEncoder.matches(any(), any())).thenReturn(true);
 
 		// When
-		assertDoesNotThrow(() -> userService.withdraw(withdrawalDto, userDetails));
+		userService.withdraw(withdrawalDto, userDetails);
 
 		// Then
 		verify(userRepository).save(argThat(savedUser -> savedUser.getRole() == UserRole.WITHDRAWAL));
@@ -172,7 +175,7 @@ public class UserServiceTest {
 			.build();
 
 		// When & Then
-		assertThrows(UsernameMismatchException.class, () -> userService.withdraw(withdrawalDto, userDetails));
+		assertThrows(MismatchException.class, () -> userService.withdraw(withdrawalDto, userDetails));
 		verify(userRepository, never()).save(any(User.class));
 	}
 
@@ -187,7 +190,7 @@ public class UserServiceTest {
 		when(passwordEncoder.matches(any(), any())).thenReturn(false);
 
 		// When & Then
-		assertThrows(PasswordMismatchException.class, () -> userService.withdraw(withdrawalDto, userDetails));
+		assertThrows(MismatchException.class, () -> userService.withdraw(withdrawalDto, userDetails));
 		verify(userRepository, never()).save(any(User.class));
 	}
 

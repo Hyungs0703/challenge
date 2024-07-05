@@ -74,6 +74,12 @@ public class User {
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
 	private final List<CommentLike> commentLikeList = new ArrayList<>();
 
+	@OneToMany(mappedBy = "following", cascade = CascadeType.ALL, orphanRemoval = true)
+	private final List<Follow> followingList = new ArrayList<>();
+
+	@OneToMany(mappedBy = "followed", cascade = CascadeType.ALL, orphanRemoval = true)
+	private final List<Follow> followedList = new ArrayList<>();
+
 	public void editUserInfo(String nickname, String introduce) {
 		this.nickname = nickname;
 		this.introduce = introduce;
@@ -116,11 +122,6 @@ public class User {
 		record.setUser(this);
 	}
 
-	public void removePasswordRecord(UserPasswordRecord record) {
-		this.passwordRecordList.remove(record);
-		record.setUser(null);
-	}
-
 	public void addComment(Comment comment) {
 		this.comments.add(comment);
 		comment.setUser(this);
@@ -146,5 +147,10 @@ public class User {
 			this.commentLikeCount = 0L;
 		}
 		this.commentLikeCount++;
+	}
+
+	public void addFollow(User following) {
+		Follow followUser = Follow.builder().following(following).followed(this).build();
+		followingList.add(followUser);
 	}
 }

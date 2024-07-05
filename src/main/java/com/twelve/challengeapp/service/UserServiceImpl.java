@@ -1,24 +1,22 @@
 package com.twelve.challengeapp.service;
 
-import com.twelve.challengeapp.exception.UserNotFoundException;
+import com.twelve.challengeapp.dto.UserRequestDto;
+import com.twelve.challengeapp.dto.UserResponseDto;
+import com.twelve.challengeapp.entity.User;
+import com.twelve.challengeapp.entity.UserPasswordRecord;
+import com.twelve.challengeapp.entity.UserRole;
+import com.twelve.challengeapp.exception.DuplicateException;
+import com.twelve.challengeapp.exception.MismatchException;
+import com.twelve.challengeapp.exception.NotFoundException;
+import com.twelve.challengeapp.jwt.UserDetailsImpl;
 import com.twelve.challengeapp.repository.UserPasswordRepository;
+import com.twelve.challengeapp.repository.UserRepository;
 import jakarta.transaction.Transactional;
 import java.util.List;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import com.twelve.challengeapp.dto.UserRequestDto;
-import com.twelve.challengeapp.dto.UserResponseDto;
-import com.twelve.challengeapp.entity.User;
-import com.twelve.challengeapp.entity.UserPasswordRecord;
-import com.twelve.challengeapp.entity.UserRole;
-import com.twelve.challengeapp.exception.DuplicateUsernameException;
-import com.twelve.challengeapp.exception.PasswordMismatchException;
-import com.twelve.challengeapp.exception.UsernameMismatchException;
-import com.twelve.challengeapp.jwt.UserDetailsImpl;
-import com.twelve.challengeapp.repository.UserRepository;
 
 @Service
 @RequiredArgsConstructor
@@ -64,7 +62,7 @@ public class UserServiceImpl implements UserService {
 	@Transactional
 	public void userPasswordChange(UserRequestDto.ChangePassword requestDto, UserDetailsImpl userDetails) {
 		User user = userRepository.findByUsername(requestDto.getUsername())
-			.orElseThrow(() -> new UserNotFoundException("The user name does not exist"));
+			.orElseThrow(() -> new NotFoundException("The user name does not exist"));
 
 		validatePasswordMatch(requestDto.getPassword(), userDetails.getPassword());
 		validateNewPassword(userDetails.getUserId(), requestDto.getChangePassword());
@@ -94,19 +92,19 @@ public class UserServiceImpl implements UserService {
 
 	private void validateUsernameMatch(String requestUsername, String username) {
 		if (!requestUsername.equals(username)) {
-			throw new UsernameMismatchException("Login ID does not match");
+			throw new MismatchException("Login ID does not match");
 		}
 	}
 
 	private void validateDuplicateUsername(String username) {
 		if (userRepository.existsByUsername(username)) {
-			throw new DuplicateUsernameException("Duplicate username");
+			throw new DuplicateException("Duplicate username");
 		}
 	}
 
 	private void validatePasswordMatch(String inputPassword, String storedPassword) {
 		if (!passwordEncoder.matches(inputPassword, storedPassword)) {
-			throw new PasswordMismatchException("Passwords do not match");
+			throw new MismatchException("Passwords do not match");
 		}
 	}
 
@@ -114,7 +112,7 @@ public class UserServiceImpl implements UserService {
 		List<UserPasswordRecord> recentPasswords = userPasswordRepository.findTop3ByUserIdOrderByCreatedAtDesc(userId);
 		for (UserPasswordRecord record : recentPasswords) {
 			if (passwordEncoder.matches(newPassword, record.getUserPassword())) {
-				throw new PasswordMismatchException("The new password must not be the same as any of the recent passwords.");
+				throw new MismatchException("The new password must not be the same as any of the recent passwords.");
 			}
 		}
 	}

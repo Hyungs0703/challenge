@@ -1,11 +1,11 @@
 package com.twelve.challengeapp.service;
 
+import com.twelve.challengeapp.exception.NotFoundException;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import com.twelve.challengeapp.entity.RefreshToken;
 import com.twelve.challengeapp.entity.User;
-import com.twelve.challengeapp.exception.TokenNotFoundException;
 import com.twelve.challengeapp.repository.RefreshTokenRepository;
 
 @Service
@@ -23,7 +23,7 @@ public class RefreshTokenServiceImpl implements RefreshTokenService {
 	@Override
 	public RefreshToken findByToken(String token) {
 		return refreshTokenRepository.findByToken(token)
-			.orElseThrow(() -> new TokenNotFoundException("Not found Refresh Token."));
+			.orElseThrow(() -> new NotFoundException("Not found Refresh Token."));
 	}
 
 	@Override

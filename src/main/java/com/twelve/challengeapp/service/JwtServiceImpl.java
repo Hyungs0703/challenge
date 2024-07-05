@@ -31,7 +31,6 @@ import lombok.extern.slf4j.Slf4j;
 public class JwtServiceImpl implements JwtService {
 
 	private static final String REFRESH_TOKEN_COOKIE_NAME = "RefreshToken";
-	private static final String COOKIE_PATH = "/";
 	private static final int COOKIE_MAX_AGE = 0;
 
 	@Override

@@ -2,8 +2,9 @@ package com.twelve.challengeapp.service.like;
 
 import com.twelve.challengeapp.entity.Comment;
 import com.twelve.challengeapp.entity.User;
-import com.twelve.challengeapp.exception.CommentNotFoundException;
-import com.twelve.challengeapp.exception.UserNotFoundException;
+import com.twelve.challengeapp.exception.AlreadyException;
+import com.twelve.challengeapp.exception.DuplicateException;
+import com.twelve.challengeapp.exception.NotFoundException;
 import com.twelve.challengeapp.jwt.UserDetailsImpl;
 import com.twelve.challengeapp.repository.UserRepository;
 import com.twelve.challengeapp.repository.like.CommentLikeRepository;
@@ -32,7 +33,7 @@ public class CommentLikeServiceImpl implements CommentLikeService {
         Comment comment = findCommentById(commentId);
         validateCommentLike(userDetails, comment);
         User user = userRepository.findById(userDetails.getUserId()).orElseThrow(() ->
-            new UserNotFoundException("Nof Found User"));
+            new NotFoundException("Nof Found User"));
 
         user.addCommentLikeCount(comment);
         comment.addLike(userDetails.getUser());
@@ -55,7 +56,7 @@ public class CommentLikeServiceImpl implements CommentLikeService {
 
     private void validateCommentLike(UserDetailsImpl userDetails, Comment comment) {
         if (commentLikeRepository.existsByUserAndComment(userDetails.getUser(), comment)) {
-            throw new IllegalArgumentException("You have already liked this comment");
+            throw new AlreadyException("You have already liked this comment");
         }
 
         if (comment.getUser().getId().equals(userDetails.getUserId())) {
@@ -66,7 +67,7 @@ public class CommentLikeServiceImpl implements CommentLikeService {
 
     private Comment findCommentById(Long commentId) {
         return  commentRepository.findById(commentId).orElseThrow(() ->
-            new CommentNotFoundException("Comment not found with given ID: " + commentId));
+            new NotFoundException("Comment not found with given ID: " + commentId));
     }
 
 
