@@ -1,9 +1,7 @@
 package com.twelve.challengeapp.entity;
 
-import com.twelve.challengeapp.controller.Follow;
 import com.twelve.challengeapp.entity.like.CommentLike;
 import com.twelve.challengeapp.entity.like.PostLike;
-import jakarta.persistence.FetchType;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -76,8 +74,11 @@ public class User {
 	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
 	private final List<CommentLike> commentLikeList = new ArrayList<>();
 
-	@OneToMany(mappedBy = "user", cascade = CascadeType.ALL, orphanRemoval = true)
-	private final List<Follow> followList = new ArrayList<>();
+	@OneToMany(mappedBy = "following", cascade = CascadeType.ALL, orphanRemoval = true)
+	private final List<Follow> followingList = new ArrayList<>();
+
+	@OneToMany(mappedBy = "followed", cascade = CascadeType.ALL, orphanRemoval = true)
+	private final List<Follow> followedList = new ArrayList<>();
 
 	public void editUserInfo(String nickname, String introduce) {
 		this.nickname = nickname;
@@ -146,5 +147,10 @@ public class User {
 			this.commentLikeCount = 0L;
 		}
 		this.commentLikeCount++;
+	}
+
+	public void addFollow(User following) {
+		Follow followUser = Follow.builder().following(following).followed(this).build();
+		followingList.add(followUser);
 	}
 }
