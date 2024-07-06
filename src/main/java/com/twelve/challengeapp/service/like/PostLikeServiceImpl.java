@@ -43,6 +43,7 @@ public class PostLikeServiceImpl implements PostLikeService{
         postLikeRepository.findByPostAndUser(post, userDetails.getUser())
             .orElseThrow(() -> new IllegalArgumentException("Like not found for the given post and user"));
         post.removeLike(userDetails.getUser());
+//        postLikeRepository.deleteById(postLikeId);
     }
 
     @Override
