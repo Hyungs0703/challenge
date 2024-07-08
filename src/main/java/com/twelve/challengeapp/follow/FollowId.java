@@ -25,6 +25,7 @@ public class FollowId implements Serializable {
     @Column(name = "followedId")
     private Long followedUserId;
 
+
     @Override
     public boolean equals(Object o) {
         if (this == o) {

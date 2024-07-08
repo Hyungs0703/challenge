@@ -23,7 +23,9 @@ public class Follow extends Timestamped {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private FollowId followId = new FollowId();
 
+
     public Follow(User followingUser, User followedUser) {
+        this.followId = new FollowId(followingUser.getId(), followedUser.getId());
         this.followingUser = followingUser;
         this.followedUser = followedUser;
     }
